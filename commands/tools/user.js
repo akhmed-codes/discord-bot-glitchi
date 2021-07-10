@@ -1,4 +1,4 @@
-const pm= require('pretty-ms')
+const pm= require('pretty-ms');
 module.exports = {
   name : 'user',
   aliases : ['whois', 'userinfo'],
@@ -86,6 +86,14 @@ function send(msg,user=false,member=false){
     return msg.reply('your specified user wasn\'t found!')
   }
   if(member){
+    const keyPerms = [
+      'KICK_MEMBERS',     'BAN_MEMBERS',
+      'MANAGE_CHANNELS',  'MANAGE_GUILD',  
+      'MANAGE_MESSAGES',  'MENTION_EVERYONE',
+      'MANAGE_NICKNAMES', 'MANAGE_ROLES',     
+      'MANAGE_WEBHOOKS',  'MANAGE_EMOJIS'
+    ];
+    
     embed.fields.push({
       name : '🍻| Joined : ',
       value :`\`\`\`\n${new Date(member.joinedTimestamp)
@@ -99,10 +107,36 @@ function send(msg,user=false,member=false){
       name : `🪃| Roles [${member
         .roles.cache.size-1}]: `,
       value :(member.roles.cache.size-1)?member.roles.cache.filter(r=>r.id!=msg.guild.id).map(r=>r).join(", "):'` NONE `',
-    },{
-      name : `🥷| Permissions : `,
-      value : '```\n'+(member.permissions.toArray().includes('ADMINISTRATOR')?'ADMINISTRATOR':member.permissions.toArray().join(', '))+'```',
     });
+    
+    const permKeys = member.permissions.toArray();
+    let userKeyPerms = '';
+    
+    if(permKeys.includes('ADMINISTRATOR')){
+      userKeyPerms = 'ALL_PERMISSIONS'
+    }
+    else if(keyPerms.every(p => 
+      permKeys.includes(p))){
+        userKeyPerms = 'MODERATION_PRIVILEGE'
+    }
+    else if(keyPerms.some(p => permKeys.includes(p))){
+      userKeyPerms = permKeys
+        .filter(perm=>keyPerms.includes(perm))
+        .join(', ');
+    }
+    else{
+      userKeyPerms = permKeys.length?permKeys
+        .join(", "):'NONE';
+    }
+
+    if(userKeyPerms){
+      embed.fields.push({
+        name : `🥷| Key Permissions : `,
+        value : '```\n'+userKeyPerms+'```',
+      })
+    }
+  
+
   };
   msg.channel.send({embed});
 } 

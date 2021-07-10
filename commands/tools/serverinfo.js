@@ -12,14 +12,14 @@ module.exports = {
 };
 
 function getData(guild) {
-  return embed = {
+  return {
     color : '#00bfff',
     title : guild.name,
     description : '```\n'+
       `Name : ${guild.name
       }\nID : ${guild.id
       }\nRegion : ${guild.region
-      }\nMembers : ${guilds.members
+      }\nMembers : ${guild.memberCount
       }\nOwnerID : ${guild.ownerID
       }\nVerification Level : ${guild.verificationLevel
       }`+'```',
